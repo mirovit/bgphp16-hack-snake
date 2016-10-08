@@ -15,14 +15,14 @@ class GameController extends Controller
         return view('waiting-room');
     }
 
-    public function showWaitingChallenge(User $me, User $challenged)
+    public function showWaitingChallenge(User $challenger, User $challenged)
     {
-        return view('challenge-wait', compact('me', 'challenged'));
+        return view('challenge-wait', compact('challenger', 'challenged'));
     }
 
-    public function game()
+    public function game(User $challenger, User $challenged)
     {
-        return view('game');
+        return view('game', compact('challenger', 'challenged'));
     }
 
     public function challenge(User $user, PusherManager $pusher)

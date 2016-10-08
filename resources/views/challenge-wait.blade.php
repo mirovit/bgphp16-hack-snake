@@ -18,10 +18,10 @@
 
 @section('scripts')
     <script>
-        var challengeChannel = pusher.subscribe('private-waiting-{{ $challenged->id }}-{{ $me->id }}');
+        var challengeChannel = pusher.subscribe('private-waiting-{{ $challenger->id }}-{{ $challenged->id }}');
 
         challengeChannel.bind('client-accepted', function(data) {
-            window.location = '{{ url("game/{$challenged->id}/{$me->id}") }}';
+            window.location = '{{ url("game/{$challenger->id}/{$challenged->id}") }}';
         });
 
         challengeChannel.bind('client-declined', function(data) {

@@ -52,17 +52,18 @@
 
         challengeChannel.bind('challanged-by', function(data) {
             var accept = window.confirm("You've been challanged to play a game by " + data.user.name);
-            var waitingChannel = pusher.subscribe('private-waiting-{{ auth()->user()->id }}-' + data.user.id);
+            var waitingChannel = pusher.subscribe('private-waiting-' + data.user.id + '-{{ auth()->user()->id }}');
 
             waitingChannel.bind('pusher:subscription_succeeded', function() {
                 if( accept ) {
-                    waitingChannel.trigger('client-accepted', {me: '{!! auth()->user()->toJson() !!}', challenged: data.user});
+                    waitingChannel.trigger('client-accepted', {challenged: '{!! auth()->user()->toJson() !!}', challenger: data.user});
 
                     setTimeout(function() {
-                        window.location = '{{ url("game") }}/{{ auth()->user()->id }}/' + data.user.id;
+                        {{--console.log('{{ url("game") }}/'+data.user.id + '-{{ auth()->user()->id }}');--}}
+                        window.location = '{{ url("game") }}/'+data.user.id + '/{{ auth()->user()->id }}';
                     }, 200);
                 } else {
-                    waitingChannel.trigger('client-declined', {me: '{!! auth()->user()->toJson() !!}', challenged: data.user});
+                    waitingChannel.trigger('client-declined', {challenged: '{!! auth()->user()->toJson() !!}', challenger: data.user});
                 }
             });
 
