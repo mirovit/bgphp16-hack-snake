@@ -37,6 +37,7 @@
             if(members.count === 1) {
                 document.querySelector('#players').innerHTML = '<div class="col-sm-12">No players available.</div>';
             } else {
+                document.querySelector('#players').innerHTML = '';
                 members.each(function (member) {
                     if (member.id != members.me.id) {
                         drawPlayer(member);
@@ -47,10 +48,24 @@
     </script>
 
     <script>
-        var challengeChannel = pusher.subscribe('challenge-{{ auth()->user()->id }}');
+        var challengeChannel = pusher.subscribe('private-challenge-{{ auth()->user()->id }}');
 
         challengeChannel.bind('challanged-by', function(data) {
-            console.log(data);
+            var accept = window.confirm("You've been challanged to play a game by " + data.user.name);
+            var waitingChannel = pusher.subscribe('private-waiting-{{ auth()->user()->id }}-' + data.user.id);
+
+            waitingChannel.bind('pusher:subscription_succeeded', function() {
+                if( accept ) {
+                    waitingChannel.trigger('client-accepted', {me: '{!! auth()->user()->toJson() !!}', challenged: data.user});
+
+                    setTimeout(function() {
+                        window.location = '{{ url("game") }}/{{ auth()->user()->id }}/' + data.user.id;
+                    }, 200);
+                } else {
+                    waitingChannel.trigger('client-declined', {me: '{!! auth()->user()->toJson() !!}', challenged: data.user});
+                }
+            });
+
         });
     </script>
 

@@ -15,6 +15,11 @@ class GameController extends Controller
         return view('waiting-room');
     }
 
+    public function showWaitingChallenge(User $me, User $challenged)
+    {
+        return view('challenge-wait', compact('me', 'challenged'));
+    }
+
     public function game()
     {
         return view('game');
@@ -22,7 +27,8 @@ class GameController extends Controller
 
     public function challenge(User $user, PusherManager $pusher)
     {
-        $pusher->trigger("challange-{$user->id}", 'challanged-by', ['user' => auth()->user()]);
+        $pusher->trigger("private-challenge-{$user->id}", 'challanged-by', ['user' => auth()->user()]);
+        return redirect('challenge/wait/' . auth()->user()->id . '/' . $user->id);
     }
 
     public function userCheck(Request $request, PusherManager $pusher)
