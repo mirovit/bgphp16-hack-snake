@@ -48,16 +48,17 @@
     var waitingChannel = pusher.subscribe('presence-room-' + challenger.id + '-' + challenged.id);
 
     waitingChannel.bind('pusher:member_added', function(member) {
-
+        console.log('member added');
+        if (member.id == my.id) {
+            //return;
+        }
         var dataPlayer = {
             id: member.id,
             name: member.info.name,
             position: snake.getRandomPosition()
         };
 
-
         gameChannel.trigger('client-addPlayer', dataPlayer);
-        console.log('call addPlayer', member);
 
         setTimeout(function () {
             gameChannel.trigger('client-startGame', {
@@ -69,26 +70,24 @@
     });
 
     waitingChannel.bind('pusher:subscription_succeeded', function(members) {
-        //console.log(members.count);
         if (members.count!=2) return;
-        console.log(members.count);
-       /* members.each(function (member) {
-            if (member.id == members.me.id) {
-            //    return;
+
+        members.each(function (member) {
+            if (member.id != members.me.id) {
+ //              return;
             }
 
-
-        });*/
-
-
-        var dataPlayer = {
-            id: my.id,
-            name: my.name,
-            position: snake.getRandomPosition()
-        };
+            var dataPlayer = {
+                id: my.id,
+                name: my.name,
+                position: snake.getRandomPosition()
+            };
 
 
-        gameChannel.trigger('client-addPlayer', dataPlayer);
+            gameChannel.trigger('client-addPlayer', dataPlayer);
+
+        });
+
 
     });
 
@@ -98,12 +97,9 @@
 
 
 
-
-
-
-
     gameChannel.bind('client-addPlayer', function(data) {
         console.log('add player called');
+        console.log(data);
         document.dispatchEvent(new CustomEvent('addPlayer', {
             detail: data
         }));
