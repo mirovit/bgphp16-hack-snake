@@ -5766,4 +5766,17 @@ button.close {
   .hidden-print {
     display: none !important; } }
 
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  display: -webkit-box;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto; }
+
 /*# sourceMappingURL=app.css.map */

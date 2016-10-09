@@ -80,6 +80,21 @@
         </nav>
 
         @yield('content')
+        <footer class="footer">
+            <div class="container">
+                <div class="col-sm-4">
+                    Created by: <a href="https://twitter.com/albertvision_bg" target="_blank">@albertvision_bg</a>, <a href="https://twitter.com/mvvitanov" target="_blank">@mvvitanov</a>, <a href="https://twitter.com/tkulev" target="_blank">@tkulev</a>
+                </div>
+                <div class="col-sm-4 text-center">
+                    Created in 2016 : )
+                </div>
+                <div class="col-sm-4">
+                    <a href="https://pusher.com" target="_blank" class="pull-right">
+                        Powered by <img src="{{ url('images/pusher_logo_dark.png') }}" alt="Pusher" style="height: 30px;" />
+                    </a>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- Scripts -->

@@ -177,7 +177,9 @@ function Snake(canvas, context, point_size, game, isRemote) {
 			var dataFood = {
 				foodPosition: newFoodPosition
 			};
-			sendEvent('newFood', dataFood);
+			if (!this.isRemote) {
+				sendEvent('newFood', dataFood);
+			}
 		}
 	}
 

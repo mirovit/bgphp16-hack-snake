@@ -26,7 +26,7 @@
 </script>
 
 <script type="text/javascript" src="{{ url('js/init.js') }}"></script>
-<script type="text/javascript" src="{{ url('js/snake.js') }}"></script>
+<script type="text/javascript" src="{{ url('js/snake.js?v=1') }}"></script>
 <script type="text/javascript" src="{{ url('js/game.js') }}"></script>
 <canvas id="game_canvas"></canvas><br/>
 
