@@ -25,12 +25,21 @@
        var drawPlayer = function(member) {
             var player = document.querySelector('#player').innerHTML;
 
+            player = player.replace('id="user-"', 'id="user-' + member.id + '"');
             player = player.replace('href=""', 'href="{{ url('challenge') }}/' + member.id + '"');
             player = player.replace('name">', 'name">' + member.info.name);
             player = player.replace('alt=""', 'alt="' + member.info.name + '"');
             player = player.replace('img src=""', 'img src="' + member.info.avatar + '"');
 
             document.querySelector('#players').innerHTML += player;
+        };
+
+        var removePlayer = function(member) {
+            var player = document.querySelector('#user-' + member.id).innerHTML;
+
+            var players = document.querySelector('#players').innerHTML;
+
+            document.querySelector('#players').innerHTML = players.replace(player, '');
         };
 
         waitingChannel.bind('pusher:subscription_succeeded', function(members) {
@@ -44,6 +53,14 @@
                     }
                 });
             }
+        });
+
+        waitingChannel.bind('pusher:member_added', function(member) {
+            drawPlayer(member);
+        });
+
+        waitingChannel.bind('pusher:member_removed', function(member) {
+            removePlayer(member);
         });
     </script>
 
@@ -72,7 +89,7 @@
     </script>
 
     <script id="player" type="template/text">
-        <div class="col-sm-3">
+        <div class="col-sm-3" id="user-">
             <div class="thumbnail">
                 <img src="" alt="">
                 <div class="caption">
