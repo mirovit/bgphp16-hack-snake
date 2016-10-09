@@ -54,6 +54,12 @@
                                     Login
                                 </button>
 
+                                <a href="{{ url('auth/facebook') }}" class="btn btn-primary" style="background-color: #3B5998;">
+                                    <span class="fa fa-facebook"></span>
+                                    &nbsp; &nbsp;
+                                    Login with Facebook
+                                </a>
+
                                 <a class="btn btn-link" href="{{ url('/password/reset') }}">
                                     Forgot Your Password?
                                 </a>

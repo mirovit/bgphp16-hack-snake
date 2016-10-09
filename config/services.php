@@ -35,4 +35,10 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'facebook' => [
+        'client_id' => env('FACEBOOK_APP_ID'),
+        'client_secret' => env('FACEBOOK_SECRET'),
+        'redirect'      => (env('APP_DEBUG') ? 'http://snakes.app/' : 'http://snake.mvvitanov.com/') . 'auth/facebook/callback',
+    ],
+
 ];
