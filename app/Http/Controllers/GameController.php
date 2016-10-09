@@ -32,7 +32,7 @@ class GameController extends Controller
         $challenger = $game->challenger;
         $challenged = $game->challenged;
 
-        return view('game', compact('challenger', 'challenged'));
+        return view('game', compact('game', 'challenger', 'challenged'));
     }
 
     public function challenge($challenged_id, PusherManager $pusher)

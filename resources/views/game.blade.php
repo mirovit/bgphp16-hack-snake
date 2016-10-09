@@ -6,6 +6,7 @@
             margin: 0;padding:0;
         }
     </style>
+    <link href="{{ url('/vendor/sweetalert/sweetalert.css') }}" rel="stylesheet">
 </head>
 <body onload="checkCanvasIsSupported();" style="background: #000">
 
@@ -25,6 +26,8 @@
     });
 </script>
 
+<script type="text/javascript" src="{{ url('js/object-observe.js') }}"></script>
+<script src="{{ url('/vendor/sweetalert/sweetalert.min.js') }}"></script>
 <script type="text/javascript" src="{{ url('js/init.js') }}"></script>
 <script type="text/javascript" src="{{ url('js/snake.js?v=1') }}"></script>
 <script type="text/javascript" src="{{ url('js/game.js') }}"></script>
@@ -45,8 +48,8 @@
     };
     var interval;
 
-    var gameChannel = pusher.subscribe('private-room-' + challenger.id + '-' + challenged.id);
-    var waitingChannel = pusher.subscribe('presence-room-' + challenger.id + '-' + challenged.id);
+    var gameChannel = pusher.subscribe('private-room-{{ $game->game_uuid }}');
+    var waitingChannel = pusher.subscribe('presence-room-{{ $game->game_uuid }}');
 
     function handleMembers(){
         var members = waitingChannel.members;
@@ -67,8 +70,8 @@
 
     }
 
-    waitingChannel.bind('pusher:subscription_succeeded', handleMembers)
-    waitingChannel.bind('pusher:member_added', handleMembers)
+    waitingChannel.bind('pusher:subscription_succeeded', handleMembers);
+    waitingChannel.bind('pusher:member_added', handleMembers);
 
     gameChannel.bind('client-addPlayer', function(data) {
         document.dispatchEvent(new CustomEvent('addPlayer', {
@@ -127,12 +130,35 @@
         console.log('starttttt');
         //if (game.gam)
         game.newFood(data.foodPosition);
+
+
+        game.watch('game_over', function(id, oldval, newval) {
+            if(newval == true) {
+                triggerGameOver({});
+            }
+        });
+
         render();
         interval = setInterval(render, 100);
     });
 
+    var gameOver = false;
+    var triggerGameOver = function (data) {
+        if(!gameOver) {
+            gameOver = true;
+            sendEvent('game-over', data);
+
+            swal('Game Over', 'You\'ll be redirected to the waiting room now.')
+
+            setTimeout(function(){
+                window.location = '{{ route('app.waiting-room') }}';
+            }, 1000);
+        }
+    };
+
     document.addEventListener('endGame', function(e) {
         game.game_over = true;
+        alert('end');
     });
 
     document.addEventListener('win', function(e) {
