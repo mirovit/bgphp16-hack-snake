@@ -112,7 +112,7 @@ function Snake(canvas, context, point_size, game, isRemote) {
 
 	this.update = function() {
 		if (this.game.game_over || this.game_win || this.game_paused) return;
-		step = 1;
+		step = 5;
 		switch (this.direction) {
 			case SnakeDirections.LEFT:
 				if (this.body[0].x > 0) {
