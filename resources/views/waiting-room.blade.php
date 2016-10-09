@@ -9,7 +9,7 @@
 
                 <div class="panel-body">
                     <div class="row" id="players">
-                        <div class="col-sm-12">No players available.</div>
+                        <div class="col-sm-12" id="noAvailablePlayers">No players available.</div>
                     </div>
                 <div>
             </div>
@@ -22,31 +22,46 @@
     <script>
         var waitingChannel = pusher.subscribe('presence-waiting-room');
 
+        var players = $('#players');
+        var currentPlayersCount = 0;
+
        var drawPlayer = function(member) {
-            var player = document.querySelector('#player').innerHTML;
+           hideNoPlayers();
+           currentPlayersCount += 1;
+            var player = $($('#player').html());
 
-            player = player.replace('id="user-"', 'id="user-' + member.id + '"');
-            player = player.replace('href=""', 'href="{{ url('challenge') }}/' + member.id + '"');
-            player = player.replace('name">', 'name">' + member.info.name);
-            player = player.replace('alt=""', 'alt="' + member.info.name + '"');
-            player = player.replace('img src=""', 'img src="' + member.info.avatar + '"');
+           player.attr('id', 'user-' + member.id);
+           player.find('.user-challange').attr('href', '{{ url('challenge') }}/' + member.id);
+           player.find('.user-name').html(member.info.name);
+           player.find('.user-avatar').attr('alt', member.info.name);
+           player.find('.user-avatar').attr('src', member.info.avatar);
 
-            document.querySelector('#players').innerHTML += player;
+           players.append(player);
         };
 
         var removePlayer = function(member) {
-            var player = document.querySelector('#user-' + member.id).innerHTML;
+            currentPlayersCount -= 1;
 
-            var players = document.querySelector('#players').innerHTML;
+            $('#user-' + member.id).remove();
 
-            document.querySelector('#players').innerHTML = players.replace(player, '');
+            if(currentPlayersCount <= 0) {
+                showNoPlayers();
+            }
+        };
+
+        var showNoPlayers = function() {
+            $('#noAvailablePlayers').show();
+        };
+
+        var hideNoPlayers = function() {
+            $('#noAvailablePlayers').hide();
         };
 
         waitingChannel.bind('pusher:subscription_succeeded', function(members) {
             if(members.count === 1) {
-                document.querySelector('#players').innerHTML = '<div class="col-sm-12">No players available.</div>';
+                showNoPlayers();
             } else {
-                document.querySelector('#players').innerHTML = '';
+                hideNoPlayers();
                 members.each(function (member) {
                     if (member.id != members.me.id) {
                         drawPlayer(member);
@@ -91,7 +106,7 @@
     <script id="player" type="template/text">
         <div class="col-sm-3" id="user-">
             <div class="thumbnail">
-                <img src="" alt="">
+                <img src="" alt="" class="user-avatar">
                 <div class="caption">
                     <h3 class="user-name"></h3>
                     <p>

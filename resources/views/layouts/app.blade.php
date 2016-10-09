@@ -99,6 +99,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="{{ url('/js/jquery-3.1.1.min.js') }}"></script>
     <script src="{{ url('/js/app.js') }}"></script>
     <script src="{{ url('/vendor/sweetalert/sweetalert.min.js') }}"></script>
     <script src="//js.pusher.com/3.2/pusher.min.js"></script>
