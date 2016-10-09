@@ -19,7 +19,8 @@ class CreateGamesTable extends Migration
             $table->integer('challenger_id')->unsigned();
             $table->integer('challenged_id')->unsigned();
             $table->integer('winner_id')->unsigned()->nullable();
-            $table->boolean('is_accepted')->default(0);
+            $table->dateTime('accepted_at')->nullable();
+            $table->dateTime('finished_at')->nullable();
             $table->timestamps();
         });
     }

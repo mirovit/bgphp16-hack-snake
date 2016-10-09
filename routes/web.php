@@ -5,6 +5,8 @@ Auth::routes();
 Route::get('auth/{driver}', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/{driver}/callback', 'Auth\LoginController@handleProviderCallback');
 
+Route::post('pusher/client-event', 'PusherController@handle');
+
 Route::group(['middleware' => 'auth'], function(){
     Route::get('/', [
         'as'    => 'app.waiting-room',

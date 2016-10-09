@@ -29,6 +29,12 @@ class GameController extends Controller
     {
         $game = Game::with(['challenger', 'challenged'])->where('game_uuid', $game_uuid)->first();
 
+        if($game->is_finished) {
+            // TODO show message to user
+
+            return redirect()->route('app.waiting-room');
+        }
+
         $challenger = $game->challenger;
         $challenged = $game->challenged;
 

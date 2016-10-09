@@ -134,7 +134,21 @@
 
         game.watch('game_over', function(id, oldval, newval) {
             if(newval == true) {
-                triggerGameOver({});
+                var winner_id = snake.snakeId;
+
+                if(snake.score > remoteSnake.score)
+                {
+                    winner_id = snake.snakeId;
+                } else if(remoteSnake.score > snake.score) {
+                    winner_id = remoteSnake.snakeId;
+                }
+
+                triggerGameOver({
+                    game: JSON.parse('{!! $game->toJson() !!}'),
+                    challenger: challenger,
+                    challenged: challenged,
+                    winner_id: winner_id
+                });
             }
         });
 
@@ -148,7 +162,8 @@
             gameOver = true;
             sendEvent('game-over', data);
 
-            swal('Game Over', 'You\'ll be redirected to the waiting room now.')
+            swal('Game Over', 'You\'ll be redirected to the waiting room now.');
+            console.log(data);
 
             setTimeout(function(){
                 window.location = '{{ route('app.waiting-room') }}';
@@ -158,7 +173,6 @@
 
     document.addEventListener('endGame', function(e) {
         game.game_over = true;
-        alert('end');
     });
 
     document.addEventListener('win', function(e) {
