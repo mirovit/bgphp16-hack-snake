@@ -28,7 +28,6 @@ class PusherController extends Controller
 
     protected function handleGameOver(array $data)
     {
-        logger($data);
         $game = Game::where('game_uuid', $data['game']['game_uuid'])->first();
         $game->finish($data['winner_id']);
     }
