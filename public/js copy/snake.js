@@ -20,33 +20,28 @@ var SnakeDirections = {
 	RIGHT : 3
 }
 
-function getRandomRange(min, max) {
-	return Math.random() * (max - min + 1) + min;
-}
-
 function getRandomColor(){
-	var r = Math.floor(getRandomRange(70, 255));
-	var g = Math.floor(getRandomRange(70, 255));
-	var b = Math.floor(getRandomRange(70, 255));
+    var r = Math.floor(getRandomRange(70, 255));
+    var g = Math.floor(getRandomRange(70, 255));
+    var b = Math.floor(getRandomRange(70, 255));
 
-	return 'rgb(' + r + ',' + g + ',' + b + ')';
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
 }
 
 
 
-function Snake(canvas, context, point_size, game, isRemote) {
+function Snake(game, snakeId, snakeName, isRemote) {
 
 	this.score = 0;
 	this.game_paused = false;
 	this.direction = SnakeDirections.RIGHT;
-	this.point_size = point_size;
 	this.body = new Array();
-	this.isRemote = isRemote;
-	this.game = game;
-	this.headColor;
-	this.tailColor;
-	this.snakeName;
-	this.snakeId;
+    this.isRemote = isRemote;
+    this.game = game;
+    this.headColor;
+    this.tailColor;
+	this.snakeId = snakeId;
+    this.snakeName = snakeName;
 
 	this.init = function() {
 		this.score = 0;
@@ -54,46 +49,36 @@ function Snake(canvas, context, point_size, game, isRemote) {
 		this.direction = SnakeDirections.RIGHT;
 		this.body = new Array();
 
-		if (this.isRemote) {
-			this.headColor = 'rgb(255, 255, 255)';
-		} else {
-			this.headColor = 'rgb(255, 0, 0)';
-		}
-		this.tailColor = getRandomColor();
+        this.headColor = 'rgb(255, 255, 255)';
+        this.tailColor = getRandomColor();
 
 	}
-	this.getRandomPosition = function() {
-		pos_x = Math.floor(getRandomRange(0, canvas.width / 2) / this.point_size) * this.point_size;
-		pos_y = Math.floor(getRandomRange(0, canvas.height) / this.point_size) * this.point_size;
-
-		return new Point(pos_x, pos_y);
-	}
-	this.addAtPosition = function(position) {
-		// init snake body
-		for (var i = 0; i < 3; i++) {
-			this.body.push(new Point(position.x, position.y));
-		};
-	}
+    this.addAtPosition = function(position) {
+        // init snake body
+        for (var i = 0; i < 3; i++) {
+            this.body.push(new Point(position.x, position.y));
+        };
+    }
 
 	this.draw = function() {
 		for (var i = this.body.length-1; i >= 0; i--) {
 			if (i == 0) {
-				context.fillStyle = this.headColor;
-			} else {
-				context.fillStyle = this.tailColor;
-			}
-			context.fillRect(this.body[i].x, this.body[i].y, this.point_size, this.point_size);
+                context.fillStyle = this.headColor;
+            } else {
+                context.fillStyle = this.tailColor;
+            }
+			context.fillRect(this.body[i].x, this.body[i].y, this.game.point_size, this.game.point_size);
 		};
 
-		this.game.drawText();
+        this.game.drawText();
 
 		context.fillStyle = 'rgb(255,255,0)';
 		context.font = 'bold 15px Arial';
-		var scorePosition = new Point(5, 15);
+        var scorePosition = new Point(5, 15);
 
-		if (this.isRemote) {
-			scorePosition.y += 20;
-		}
+        if (this.isRemote) {
+            scorePosition.y += 20;
+        }
 		context.fillText(this.snakeName + '\'s score: '+ this.score, scorePosition.x, scorePosition.y);
 	}
 
@@ -112,7 +97,7 @@ function Snake(canvas, context, point_size, game, isRemote) {
 
 	this.update = function() {
 		if (this.game.game_over || this.game_win || this.game_paused) return;
-		step = 1;
+		step = 10;
 		switch (this.direction) {
 			case SnakeDirections.LEFT:
 				if (this.body[0].x > 0) {
@@ -135,21 +120,21 @@ function Snake(canvas, context, point_size, game, isRemote) {
 				break;
 
 			case SnakeDirections.RIGHT:
-				if (this.body[0].x < canvas.width - this.point_size) {
+				if (this.body[0].x < this.game.canvas.width - this.game.point_size) {
 					this.body.unshift(new Point(this.body[0].x + step, this.body[0].y));
 					this.body.pop();
 				} else {
-					this.body[0].x = canvas.width - this.point_size;
+					this.body[0].x = this.game.canvas.width - this.game.point_size;
 					this.game.game_over = true;
 				}
 				break;
 
 			case SnakeDirections.DOWN:
-				if (this.body[0].y < canvas.height - this.point_size) {
+				if (this.body[0].y < this.game.canvas.height - this.game.point_size) {
 					this.body.unshift(new Point(this.body[0].x, this.body[0].y + step));
 					this.body.pop();
 				} else {
-					this.body[0].y = canvas.height - this.point_size;
+					this.body[0].y = this.game.canvas.height - this.game.point_size;
 					this.game.game_over = true;
 				}
 				break;
@@ -165,19 +150,13 @@ function Snake(canvas, context, point_size, game, isRemote) {
 		}
 
 		if (this.body[0].collideWith(this.game.food.x, this.game.food.y)) {
-			var newFoodPosition = this.game.getNewFoodPosition();
-			this.game.newFood(newFoodPosition);
+            this.game.newFood();
 
 			this.body.push(new Point(this.game.food.x, this.game.food.y));
 			this.score += 10;
 			if (this.score > 250) {
 				this.game_win = true;
 			}
-
-			var dataFood = {
-				foodPosition: newFoodPosition
-			};
-			sendEvent('newFood', dataFood);
 		}
 	}
 

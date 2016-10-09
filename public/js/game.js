@@ -5,13 +5,15 @@ function Game(canvas, context, point_size) {
 	this.game_paused = false;
 	this.point_size = point_size;
 	this.food = new Point();
-	
+	this.game_started = false;
+
 	this.getNewFoodPosition = function() {
 		food_x = Math.floor(getRandomRange(0, canvas.width - this.point_size) / this.point_size) * this.point_size;
 		food_y = Math.floor(getRandomRange(0, canvas.height - this.point_size) / this.point_size) * this.point_size;
 
 		return new Point(food_x, food_y);
 	}
+
 	this.newFood = function(position) {
 		this.food = new Point(position.x, position.y);
 	}
