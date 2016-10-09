@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Game;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -15,20 +15,38 @@ class GameController extends Controller
         return view('waiting-room');
     }
 
-    public function showWaitingChallenge(User $challenger, User $challenged)
+    public function showWaitingChallenge($game_uuid)
     {
-        return view('challenge-wait', compact('challenger', 'challenged'));
+        $game = Game::with(['challenger', 'challenged'])->where('game_uuid', $game_uuid)->first();
+
+        $challenger = $game->challenger;
+        $challenged = $game->challenged;
+
+        return view('challenge-wait', compact('game', 'challenger', 'challenged'));
     }
 
-    public function game(User $challenger, User $challenged)
+    public function game($game_uuid)
     {
+        $game = Game::with(['challenger', 'challenged'])->where('game_uuid', $game_uuid)->first();
+
+        $challenger = $game->challenger;
+        $challenged = $game->challenged;
+
         return view('game', compact('challenger', 'challenged'));
     }
 
-    public function challenge(User $user, PusherManager $pusher)
+    public function challenge($challenged_id, PusherManager $pusher)
     {
-        $pusher->trigger("private-challenge-{$user->id}", 'challanged-by', ['user' => auth()->user()]);
-        return redirect('challenge/wait/' . auth()->user()->id . '/' . $user->id);
+        $challenger = auth()->user();
+
+        $game = Game::create([
+            'challenger_id' => $challenger->id,
+            'challenged_id' => $challenged_id,
+        ]);
+
+        $pusher->trigger("private-challenge-{$challenged_id}", 'challanged-by', ['user' => $challenger, 'game_uuid' => $game->game_uuid]);
+
+        return redirect()->route('app.game.wait', [$game->game_uuid]);
     }
 
     public function userCheck(Request $request, PusherManager $pusher)

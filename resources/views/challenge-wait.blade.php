@@ -8,7 +8,7 @@
                 <div class="panel-heading">Waiting response</div>
 
                 <div class="panel-body">
-                    Waiting for a response ...
+                    Waiting for {{ $challenged->name }} to respond to your request.
                 <div>
             </div>
         </div>
@@ -18,18 +18,20 @@
 
 @section('scripts')
     <script>
-        var challengeChannel = pusher.subscribe('private-waiting-{{ $challenger->id }}-{{ $challenged->id }}');
+        var challengeChannel = pusher.subscribe('private-waiting-{{ $game->game_uuid }}');
 
-        challengeChannel.bind('client-accepted', function(data) {
-            window.location = '{{ url("game/{$challenger->id}/{$challenged->id}") }}';
+        challengeChannel.bind('client-accepted', function() {
+            window.location = '{{ url("game/{$game->game_uuid}") }}';
         });
 
         challengeChannel.bind('client-declined', function(data) {
-            alert('Your request has been declined.');
-
-            setTimeout(function() {
+            swal({
+                title: "Your request has been declined",
+                text: "Sorry, but " + data.user.name + " declined your request. You'll be sent to the waiting room now.",
+                showCancelButton: false,
+            }, function() {
                 window.location = '{{ url("/") }}';
-            }, 1000);
+            });
         });
     </script>
 @stop

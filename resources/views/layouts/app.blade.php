@@ -11,7 +11,8 @@
     <title>Snakes App</title>
 
     <!-- Styles -->
-    <link href="/css/app.css" rel="stylesheet">
+    <link href="{{ url('/css/app.css') }}" rel="stylesheet">
+    <link href="{{ url('/vendor/sweetalert/sweetalert.css') }}" rel="stylesheet">
 
     <!-- Scripts -->
     <script>
@@ -35,7 +36,7 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
+                    <a class="navbar-brand" href="{{ route('app.waiting-room')  }}">
                         Snakes App
                     </a>
                 </div>
@@ -82,13 +83,14 @@
     </div>
 
     <!-- Scripts -->
-    <script src="/js/app.js"></script>
+    <script src="{{ url('/js/app.js') }}"></script>
+    <script src="{{ url('/vendor/sweetalert/sweetalert.min.js') }}"></script>
     <script src="//js.pusher.com/3.2/pusher.min.js"></script>
     <script>
         var pusher = new Pusher('{{ env('PUSHER_KEY') }}', {
             cluster: 'eu',
             encrypted: true,
-            authEndpoint: '{{ url('user/check') }}',
+            authEndpoint: '{{ route('app.game.userCheck') }}',
             auth: {
                 headers: {
                     'X-CSRF-Token': "{{ csrf_token() }}"

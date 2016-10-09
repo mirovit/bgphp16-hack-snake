@@ -3,10 +3,28 @@
 Auth::routes();
 
 Route::group(['middleware' => 'auth'], function(){
-    Route::get('/', 'GameController@showWaitingRoom');
-    Route::get('/game/{challenger}/{challenged}', 'GameController@game');
-    Route::get('/challenge/{user}', 'GameController@challenge');
-    Route::get('/challenge/wait/{challenger}/{challenged}', 'GameController@showWaitingChallenge');
+    Route::get('/', [
+        'as'    => 'app.waiting-room',
+        'uses'  => 'GameController@showWaitingRoom'
+    ]);
+
+    Route::get('game/{game_uuid}', [
+        'as'    => 'app.game',
+        'uses'  => 'GameController@game'
+    ]);
+
+    Route::get('challenge/{user}', [
+        'as'    => 'app.game.challenge',
+        'uses'  => 'GameController@challenge'
+    ]);
+
+    Route::get('game/wait/{game_uuid}', [
+        'as'    => 'app.game.wait',
+        'uses'  => 'GameController@showWaitingChallenge'
+    ]);
 });
 
-Route::post('user/check', 'GameController@userCheck');
+Route::post('user/check', [
+    'as'    => 'app.game.userCheck',
+    'uses'  => 'GameController@userCheck'
+]);

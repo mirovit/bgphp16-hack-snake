@@ -16,8 +16,7 @@
     var pusher = new Pusher('{{ env('PUSHER_KEY') }}', {
         cluster: 'eu',
         encrypted: true,
-
-        authEndpoint: '{{ url('user/check') }}',
+        authEndpoint: '{{ route('app.game.userCheck') }}',
         auth: {
             headers: {
                 'X-CSRF-Token': "{{ csrf_token() }}"
@@ -46,13 +45,11 @@
     };
     var interval;
 
-
     var gameChannel = pusher.subscribe('private-room-' + challenger.id + '-' + challenged.id);
     var waitingChannel = pusher.subscribe('presence-room-' + challenger.id + '-' + challenged.id);
 
-
     function handleMembers(){
-        var members = waitingChannel.members
+        var members = waitingChannel.members;
         //console.log("HANDLE MEMBERS:", members)
         if (members.count == 2) {
 
@@ -61,7 +58,6 @@
                 name: my.name,
                 position: snake.body[0]
             };
-
 
             setTimeout(function() {
                 gameChannel.trigger('client-addPlayer', dataPlayer);

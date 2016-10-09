@@ -51,27 +51,28 @@
         var challengeChannel = pusher.subscribe('private-challenge-{{ auth()->user()->id }}');
 
         challengeChannel.bind('challanged-by', function(data) {
-            var accept = window.confirm("You've been challanged to play a game by " + data.user.name);
-            var waitingChannel = pusher.subscribe('private-waiting-' + data.user.id + '-{{ auth()->user()->id }}');
-
-            waitingChannel.bind('pusher:subscription_succeeded', function() {
-                if( accept ) {
-                    waitingChannel.trigger('client-accepted', {challenged: '{!! auth()->user()->toJson() !!}', challenger: data.user});
-
+            var waitingChannel = pusher.subscribe('private-waiting-' + data.game_uuid);
+            swal({
+                title: 'Challenge Request',
+                text: 'You\'ve been challanged to play a game by ' + data.user.name,
+                showCancelButton: true,
+                confirmButtonText: 'Accept',
+                cancelButtonText: 'Decline',
+            }, function(isConfirm){
+                if( isConfirm ) {
+                    waitingChannel.trigger('client-accepted', {challenged: JSON.parse('{!! auth()->user()->toJson() !!}'), challenger: data.user});
                     setTimeout(function() {
-                        {{--console.log('{{ url("game") }}/'+data.user.id + '-{{ auth()->user()->id }}');--}}
-                        window.location = '{{ url("game") }}/'+data.user.id + '/{{ auth()->user()->id }}';
+                        window.location = '{{ url('game') }}/' + data.game_uuid;
                     }, 200);
                 } else {
-                    waitingChannel.trigger('client-declined', {challenged: '{!! auth()->user()->toJson() !!}', challenger: data.user});
+                    waitingChannel.trigger('client-declined', {user: JSON.parse('{!! auth()->user()->toJson() !!}')});
                 }
             });
-
         });
     </script>
 
     <script id="player" type="template/text">
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <div class="thumbnail">
                 <img src="" alt="">
                 <div class="caption">
