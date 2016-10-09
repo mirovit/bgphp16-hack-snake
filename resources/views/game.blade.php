@@ -12,9 +12,11 @@
 <script src="/js/app.js"></script>
 <script src="//js.pusher.com/3.2/pusher.min.js"></script>
 <script>
+    //Pusher.logToConsole = true;
     var pusher = new Pusher('{{ env('PUSHER_KEY') }}', {
         cluster: 'eu',
         encrypted: true,
+
         authEndpoint: '{{ url('user/check') }}',
         auth: {
             headers: {
@@ -44,66 +46,35 @@
     };
     var interval;
 
+
     var gameChannel = pusher.subscribe('private-room-' + challenger.id + '-' + challenged.id);
     var waitingChannel = pusher.subscribe('presence-room-' + challenger.id + '-' + challenged.id);
 
-    waitingChannel.bind('pusher:member_added', function(member) {
 
-        var dataPlayer = {
-            id: member.id,
-            name: member.info.name,
-            position: snake.getRandomPosition()
-        };
+    function handleMembers(){
+        var members = waitingChannel.members
+        //console.log("HANDLE MEMBERS:", members)
+        if (members.count == 2) {
 
-
-        gameChannel.trigger('client-addPlayer', dataPlayer);
-        console.log('call addPlayer', member);
-
-        setTimeout(function () {
-            gameChannel.trigger('client-startGame', {
-                'foodPosition': {x: 100, y: 500},
-                'board': {width: 100, height: 100}
-            });
-        }, 1000);
-
-    });
-
-    waitingChannel.bind('pusher:subscription_succeeded', function(members) {
-        //console.log(members.count);
-        if (members.count!=2) return;
-        console.log(members.count);
-       /* members.each(function (member) {
-            if (member.id == members.me.id) {
-            //    return;
-            }
+            var dataPlayer = {
+                id: my.id,
+                name: my.name,
+                position: snake.body[0]
+            };
 
 
-        });*/
+            setTimeout(function() {
+                gameChannel.trigger('client-addPlayer', dataPlayer);
+            }, 2000);
 
+        }
 
-        var dataPlayer = {
-            id: my.id,
-            name: my.name,
-            position: snake.getRandomPosition()
-        };
+    }
 
-
-        gameChannel.trigger('client-addPlayer', dataPlayer);
-
-    });
-
-
-
-
-
-
-
-
-
-
+    waitingChannel.bind('pusher:subscription_succeeded', handleMembers)
+    waitingChannel.bind('pusher:member_added', handleMembers)
 
     gameChannel.bind('client-addPlayer', function(data) {
-        console.log('add player called');
         document.dispatchEvent(new CustomEvent('addPlayer', {
             detail: data
         }));
@@ -111,7 +82,6 @@
 
 
     gameChannel.bind('client-startGame', function(data) {
-
         document.dispatchEvent(new CustomEvent('startGame', {
             detail: data
         }));
@@ -120,6 +90,11 @@
     gameChannel.bind('client-remoteMove', function(data) {
         remoteSnake.score = data.points;
         remoteSnake.update_direction(data.direction);
+        remoteSnake.body = data.body;
+    });
+
+    gameChannel.bind('client-newFood', function(data) {
+        game.food = data.foodPosition;
     });
 
     document.addEventListener('addPlayer', function(e) {
@@ -130,17 +105,31 @@
         remoteSnake.snakeName = data.name;
         remoteSnake.init();
         remoteSnake.addAtPosition(data.position);
+        //console.log('Iam ', my.name);
+        //console.log(data.position, ' for ', data.name);
+
+        gameChannel.trigger('client-startGame', {
+            'foodPosition': {x: 100, y: 500},
+            'board': {width: 100, height: 100}
+        });
     });
 
     document.addEventListener('removePlayer', function(e) {
         //dispatch win local user
     });
 
+    document.addEventListener('newFood', function(e) {
+        data = e.detail;
+
+        game.food = data.foodPosition;
+        gameChannel.trigger('client-newFood', data);
+    });
+
     document.addEventListener('startGame', function(e) {
         data = e.detail;
 
         console.log('starttttt');
-
+        //if (game.gam)
         game.newFood(data.foodPosition);
         render();
         interval = setInterval(render, 100);
@@ -156,41 +145,6 @@
 
     function sendEvent(name, data) {
         gameChannel.trigger('client-' + name, data);
-    }
-
-    function test()
-    {
-        var dataPlayer = {
-            detail: {
-                position: {x: 0, y: 0},
-                id: 5,
-                name: 'Miro'
-            }
-        };
-
-        var dataGame = {
-            detail: {
-                'foodPosition': {x: 100, y: 500},
-                'board': {width: 100, height: 100}
-            }
-        };
-        document.dispatchEvent(new CustomEvent('addPlayer', dataPlayer));
-        document.dispatchEvent(new CustomEvent('startGame', dataGame));
-
-        setInterval(randomPosition, 500);
-    }
-
-    function randomPosition()
-    {
-        var data = {
-            detail: {
-                'direction': Math.floor(getRandomRange(0,4)),
-                'id' : 5,
-                'points': 100
-            }
-        };
-
-        document.dispatchEvent(new CustomEvent('remoteMove', data));
     }
 
 </script>
