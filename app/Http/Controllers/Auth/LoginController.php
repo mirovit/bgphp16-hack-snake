@@ -71,10 +71,8 @@ class LoginController extends Controller
 
             if (!$user) {
                 $user = $this->create([
-                    'first_name' => $fbUser->user['first_name'],
-                    'last_name' => $fbUser->user['last_name'],
-                    'email' => $fbUser->email,
-                    'photo' => $fbUser->avatar . '&width=128&height=128'
+                    'name' => $fbUser->getName(),
+                    'email' => $fbUser->getEmail(),
                 ]);
             }
 
