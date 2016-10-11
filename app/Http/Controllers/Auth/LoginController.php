@@ -73,7 +73,6 @@ class LoginController extends Controller
                 $user = $this->create([
                     'name' => $fbUser->getName(),
                     'email' => $fbUser->getEmail(),
-                    'password' => 'fb'
                 ]);
             }
 
